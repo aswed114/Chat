@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+             <script>
+                 function musiclist(){
+                     $("#musiclist").html("");
+                     musiclistpage++;
+                     $.ajax({
+                         type:'post',
+                         url:'/playlist',
+                         data:{
+                             "musiclistpage":musiclistpage
+                         },
+                         dataType:'json',
+                         success:function (msg) {
+                             var result=eval(msg);
+                             var allmusiclist=result.allmusiclist;
+                             var finallist=result.final;
+                             if(finallist=="finallist"){
+                                 var str="";
+                                 var musicnum=allmusiclist.length;
+                                 for(var i=0;i<musicnum;i++){
+                                     var musictitle=allmusiclist[i].musictitle;
+                                     var singer=allmusiclist[i].singer;
+                                     var musictotaltime=allmusiclist[i].musictotaltime;
+                                     str+="<tr id='musicplaylist"+((musiclistpage*8+i))+"'>"+"<td id='musictitlelist"+((musiclistpage*8+i))+"'>"+musictitle+"</td>"+"<td id='singerlist"+((musiclistpage*8+i))+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+((musiclistpage*8+i))+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+((musiclistpage*8+i))+"'>&#xe641;</i>"+"</td></tr>";
+                                 }
+                                 for(var i=0;i<8-musicnum;i++){
+                                     str+="<tr style='height: 39px'>"+"<td>"+"</td>"+"<td >"+"</td>"+"<td >"+"</td>"+"<td>"+"<label style='width: 25px'></label>"+"</td></tr>";
+                                 }
+                                 str+="<tr><td>"+"<i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'>&#xe62a;</i>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label>"+"</td></tr>";
+                                 $("#musiclist").append(str);
+                                 for(var i=0;i<musicnum;i++){
+                                     var musictitle=$('#musictitlelist'+(musiclistpage*8+i)+'').html();
+                                     var singer=$('#singerlist'+(musiclistpage*8+i)+'').html();
+                                     var musictitlesinger=musictitle+","+singer+",list,"+(musiclistpage*8+i);
+                                     $('#musicdeletelist'+(musiclistpage*8+i)+'').bind('click',musictitlesinger,deletemusiclist);
+                                     $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseenter',changecolor);
+                                     $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseleave',changeorign);
+                                     $('#musicplaylist'+(musiclistpage*8+i)+'').bind('dblclick',musictitlesinger,playmusic);
+                                 }
+                                 $("#musiclistup").bind('click',musiclist1);
+                             }
+                             else{
+                                 var str="";
+                                 var musicnum=allmusiclist.length;
+                                 for(var i=0;i<musicnum;i++){
+                                     var musictitle=allmusiclist[i].musictitle;
+                                     var singer=allmusiclist[i].singer;
+                                     var musictotaltime=allmusiclist[i].musictotaltime;
+                                     str+="<tr id='musicplaylist"+(musiclistpage*8+i)+"'>"+"<td id='musictitlelist"+(musiclistpage*8+i)+"'>"+musictitle+"</td>"+"<td id='singerlist"+(musiclistpage*8+i)+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+(musiclistpage*8+i)+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+(musiclistpage*8+i)+"'>&#xe641;</i>"+"</td></tr>";
+                                 }
+                                 str+="<tr><td>"+"<i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'>&#xe62a;</i>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                                 $("#musiclist").append(str);
+                                 for(var i=0;i<musicnum;i++){
+                                     var musictitle=$('#musictitlelist'+(musiclistpage*8+i)+'').html();
+                                     var singer=$('#singerlist'+(musiclistpage*8+i)+'').html();
+                                     var musictitlesinger=musictitle+","+singer+",list,"+(musiclistpage*8+i);
+                                     $('#musicdeletelist'+(musiclistpage*8+i)+'').bind('click',musictitlesinger,deletemusiclist);
+                                     $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseenter',changecolor);
+                                     $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseleave',changeorign);
+                                     $('#musicplaylist'+(musiclistpage*8+i)+'').bind('dblclick',musictitlesinger,playmusic);
+                                 }
+                                 $("#musiclistup").bind('click',musiclist1);
+                                 $("#musiclistdown").bind('click',musiclist);
+                             }
+                         }
+                     })
+                 }
+             </script>
+<script>
+    app.post('/playlist',function (req,res) {
+        var musiclistpage=req.body.musiclistpage;
+        var content={};
+        var result={
+            "allmusiclist":[]
+        };
+        if(musiclistpage==0){
+            Listmusic.find(content,function (err,tasks) {
+                var num=tasks.length;
+                for(var i=num-1;i>=num-8;i--){
+                    var arr={musictitle:tasks[i].musictitle,singer:tasks[i].singer,musictotaltime:tasks[i].musictotaltime};
+                    result.allmusiclist.push(arr);
+                }
+                res.json(result);
+            })
+        }
+        else{
+            Listmusic.find(content,function (err,tasks) {
+                var num=tasks.length;
+                if(num-musiclistpage*8>=8){
+                    for(var i=musiclistpage*8+7;i>=musiclistpage*8;i--){
+                        var arr={musictitle:tasks[i].musictitle,singer:tasks[i].singer,musictotaltime:tasks[i].musictotaltime};
+                        result.allmusiclist.push(arr);
+                    }
+                    res.json(result);
+                }
+                else{
+                    result={
+                        "allmusiclist":[],
+                        "final":"finallist"
+                    }
+                    for(var i=num-8*musiclistpage-1;i>=0;i--){
+                        var arr={musictitle:tasks[i].musictitle,singer:tasks[i].singer,musictotaltime:tasks[i].musictotaltime};
+                        result.allmusiclist.push(arr);
+                    }
+                    res.json(result);
+                }
+
+            })
+        }
+    })
+</script>
+<script>
+    function likelist1() {
+        $.ajax({
+            type:'post',
+            url:'/likelist1',
+            dataType:'json',
+            success:function (msg) {
+                var result=eval(msg);
+                var datas=result.alllistmusic1;
+                var iseight=result.iseight;
+                var num=datas.length;
+                var items=[];
+                var downs=[];
+                var updown={updown1:"",updown2:"波浪微博",updown3:"",updown4:""};
+                if(num<8){
+                    $scope.$apply(function () {
+                        $scope.datas=datas;
+                    })
+                    for(var i=0;i<8-num;i++){
+                        var item={item1:"",item2:"",item3:"",item4:""};
+                        items.push(item);
+                    }
+                    $scope.$apply(function () {
+                        $scope.items=items;
+                        $scope.updown=updown;
+                    })
+                }else{
+                    updown.updown4=iseight;
+                    $scope.$apply(function () {
+                        $scope.updown=updown;
+                        $scope.datas=datas;
+                    })
+                }
+            }
+        })
+    }
+    function musiclist1() {
+        $("#musiclist").html("");
+        musiclistpage--;
+        $.ajax({
+            type:'post',
+            url:'/playlist',
+            data:{
+                "musiclistpage":musiclistpage
+            },
+            dataType:'json',
+            success:function (msg) {
+                var result=eval(msg);
+                var allmusiclist=result.allmusiclist;
+                var str="";
+                var musicnum=allmusiclist.length;
+                for(var i=0;i<musicnum;i++){
+                    var musictitle=allmusiclist[i].musictitle;
+                    var singer=allmusiclist[i].singer;
+                    var musictotaltime=allmusiclist[i].musictotaltime;
+                    str+="<tr id='musicplaylist"+(musiclistpage*8+i)+"'>"+"<td id='musictitlelist"+(musiclistpage*8+i)+"'>"+musictitle+"</td>"+"<td id='singerlist"+(musiclistpage*8+i)+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+(musiclistpage*8+i)+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+(musiclistpage*8+i)+"'>&#xe641;</i>"+"</td></tr>";
+                }
+                if(musiclistpage==0){
+                    str+="<tr><td>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                }
+                else{
+                    str+="<tr><td>"+"<i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'>&#xe62a;</i>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                }
+                $("#musiclist").append(str);
+                for(var i=0;i<musicnum;i++){
+                    var musictitle=$('#musictitlelist'+(musiclistpage*8+i)+'').html();
+                    var singer=$('#singerlist'+(musiclistpage*8+i)+'').html();
+                    var musictitlesinger=musictitle+","+singer+",list,"+(musiclistpage*8+i);
+                    $('#musicdeletelist'+(musiclistpage*8+i)+'').bind('click',musictitlesinger,deletemusiclist);
+                    $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseenter',changecolor);
+                    $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseleave',changeorign);
+                    $('#musicplaylist'+(musiclistpage*8+i)+'').bind('dblclick',musictitlesinger,playmusic);
+                }
+                $("#musiclistup").bind('click',musiclist1);
+                $("#musiclistdown").bind('click',musiclist);
+            }
+        })
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>注册</title>
+	<script src='/javascripts/jquery-3.1.0.min.js'></script>
+	<script src='/javascripts/bootstrap.min.js'></script>
+	<link rel="stylesheet" href='stylesheets/bootstrap.min.css'>
+	<style>
+		form{
+			padding: 80px 500px;
+		}
+	</style>
+</head>
+<body background='images/bolang.jpg'>
+<form id='edithead' method='post' action='/uploadhead' enctype='multipart/form-data' style="display: none">
+	<input name="head" id='uphead' type='file' style="display: none;"/>
+</form>
+<form class="form-horizontal" role="form">
+		<div style="width:100px ;height: 100px;position: relative;bottom: 30px;left: 130px">
+			<label for="twopwd" style="position: relative;top: 90px;right: 105px">头像</label>
+			<img src="/images/touxiang.jpg"id="myhead" name="myhead" class="img-thumbnail"style="display:block;width: 100%;height: 100%;position: relative;bottom: 13px"onclick="$('input[id=uphead]').click();">
+		</div>
+	<div class="form-group">
+		<label for="username" class="col-sm-3 control-label">用户名</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control"name="username" id="username" placeholder="请输入用户名">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="pwd" class="col-sm-3 control-label">密码</label>
+		<div class="col-sm-9">
+			<input type="password" class="form-control" name="pwd" id="pwd" placeholder="请输入密码">
+		</div>
+	</div>
+	<div class="form-group">
+		<label style="position: relative;right: 243px;top:7px">重复密码</label>
+		<div class="col-sm-9">
+			<input type="password" class="form-control" name="pwd" id="twopwd" placeholder="请再次输入密码" style="position: relative;left: 85px">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="nickname" class="col-sm-3 control-label">昵称</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control" name="nickname" id="nickname" placeholder="请输入昵称">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="address" class="col-sm-3 control-label">地址</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control" name="address" id="address" placeholder="请输入地址">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="safety" class="col-sm-3 control-label">安全码</label>
+			<div class="col-sm-9">
+			<input type="text" class="form-control" name="safety" id="safety" placeholder="请输入安全码">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="birth" class="col-sm-3 control-label">生日</label>
+		<div class="col-sm-9">
+			<input type=date id="birth" name="birth" class="form-control">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="nickname" class="col-sm-3 control-label">性别</label>
+		<div class="col-sm-9">
+			<label class="radio-inline">
+				<input type="radio"  id="optionsRadios1" name="sex" value="男" checked><b>男</b>
+			</label>
+			<label style="width: 30px"></label>
+			<label class="radio-inline">
+				<input type="radio"  id="optionsRadios2" name="sex" value="女"><b>女</b>
+			</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-offset-3 col-sm-10">
+			<input type="button" onclick="rg()" class="btn btn-default" value="注册">
+			<input type="button" onclick="rl()" class="btn btn-default" value="返回登录">
+		</div>
+	</div>
+</form>
+<script>
+function rl(){
+	location.href="/"
+}
+function rg(){
+	if($("#pwd").val()==$("#twopwd").val()){
+		var username=$("#username").val();
+		var pwd=$("#pwd").val();
+		var sex=$('input:radio[name="sex"]:checked').val();
+		var nickname=$("#nickname").val();
+		var birth=$("#birth").val();
+		var address=$("#address").val();
+		var safety=$("#safety").val();
+		$("#edithead").submit();
+		setTimeout(function () {
+			$.ajax({
+				type:'post',
+				url:'/reg',
+				data:{
+					"username":username,
+					"pwd":pwd,
+					"sex":sex,
+					"nickname":nickname,
+					"birth":birth,
+					"address":address,
+					"safety":safety
+				},
+				dataType:'json',
+				success:function(msg){
+					var result=eval(msg);
+					alert(result.result);
+				}
+			})
+		},500)
+	}
+	else{
+		alert("两次输入密码不一致");
+	}
+}
+$("#uphead").change(function() {
+	var preview = document.querySelector('#myhead');
+	var file = document.querySelector('#uphead').files[0];
+	var reader = new FileReader();
+	reader.addEventListener("load", function () {
+		var oimg=preview.src;
+		preview.src = reader.result;
+		var nimg=preview.src;
+	}, false);
+	if (file) {
+		reader.readAsDataURL(file);
+	}
+
+})
+
+</script>
+</body>
+</html>

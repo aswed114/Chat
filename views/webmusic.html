@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html ng-app="mucisapp">
+<head>
+    <meta charset="UTF-8">
+    <title>波浪微博</title>
+    <link rel="stylesheet" href='stylesheets/bootstrap-3.3.7/css/bootstrap.min.css'>
+    <link rel="stylesheet" href='fonts/iconfont.css'>
+    <script src='javascripts/jquery-3.1.0.min.js'></script>
+    <script src='javascripts/bootstrap.min.js'></script>
+    <script src="/javascripts/angular.js"></script>
+    <style>
+        @font-face {
+            font-family: 'iconfont';
+            src: url('../public/fonts/iconfont.eot');
+            src: url('../public/fonts/iconfont.eot?#iefix') format('embedded-opentype'),
+            url('../public/fonts/iconfont.woff') format('woff'),
+            url('../public/fonts/iconfont.ttf') format('truetype'),
+            url('../public/fonts/iconfont.svg#iconfont') format('svg');
+        }
+        .iconfont{
+            font-family:"iconfont" !important;
+            cursor: pointer;
+            font-size:32px;font-style:normal;
+            color: #28a4c9;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-stroke-width: 0.2px;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body{
+            font-family: "微软雅黑";
+            cursor: default;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select:none;
+        }
+        .musictable,span,label{
+            color: white;
+        }
+        .change1{
+        background:#5bc0de
+        }
+        .change2{
+            background:white;
+        }
+    </style>
+</head>
+<body ng-controller="MusiclikeController">
+<div class="navbar navbar-fixed-top navbar-inverse" role="navigation" style="margin-top: 50px">
+    <div class="container"style="height: 600px">
+        <div class="panel-body pull-left " id="musicform"   >
+            <table class="table table-condensed musictable">
+                <caption>音乐列表</caption>
+                <thead>
+                <tr>
+                    <th width="110px">标题</th>
+                    <th width="80px">歌手</th>
+                    <th width="100px">专辑</th>
+                    <th width="65px">操作</th>
+                </tr>
+                </thead>
+                <tbody id="musictv">
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-body pull-right "id="musicscreen"  >
+            <div id="myCarousel" class="carousel slide" style="padding-bottom: 0px">
+                <!-- 轮播（Carousel）指标 -->
+                <!-- 轮播（Carousel）项目 -->
+                <div class="carousel-inner" >
+                    <div class="item active">
+                        <img src="/images/1.jpg" alt="First slide">
+                    </div>
+                    <div class="item">
+                        <img src="/images/2.jpg" alt="Second slide">
+                    </div>
+                    <div class="item">
+                        <img src="/images/3.jpg" alt="Third slide">
+                    </div>
+                </div>
+                <!-- 轮播（Carousel）导航 -->
+                <a class="carousel-control left" href="#myCarousel"
+                   data-slide="prev">&lsaquo;
+                </a>
+                <a class="carousel-control right" href="#myCarousel"
+                   data-slide="next">&rsaquo;
+                </a>
+            </div>
+        </div>
+    </div>
+    <div style="position: absolute;right: 107px;bottom:158px;width: 405px;" id="musicdiv" hidden="hidden" >
+        <div class="panel panel-default"style="margin-left: 10px;">
+            <div class="panel-heading" style="font-size: 0px;height: 20px;">
+                <label style="width: 95px"></label>
+                <button class="btn btn-default" style="height: 25px;width:100px;font-size: 13px;padding-top: 2px;background: #8c8c8c " onclick="showplaylist()" id="playlistbtn">播放列表</button>
+                <button class="btn btn-default" style="height: 25px;width:100px;font-size: 13px;padding-top: 2px" onclick="showlikelist()" id="likelistbtn">我喜欢的</button>
+                <label style="width: 20px"></label>
+                <i class="iconfont" style="font-size:16px;color: #0f0f0f;position: absolute;left:375px;bottom: 410px">&#xe634;</i>
+            </div>
+            <div class="panel-body" style="height: 388px;padding:0px">
+                <table class="table table-striped"  id="playmusiclistall">
+                    <input type="text" id="musiclikepage" hidden="hidden" >
+                    <thead>
+                    <tr >
+                        <th style="width: 160px;">总<span style="color: #0f0f0f"id="allmusicnum"></span>首</th>
+                        <th></th>
+                        <th></th>
+                        <th style="width: 60px;cursor: pointer"  onclick="emptylist()" ><i class="iconfont" style="vertical-align:middle;font-size:14px;color: #0f0f0f;">&#xe60f;</i>清空</th>
+                    </tr>
+                    </thead>
+                    <tbody id="musiclist" >
+                    </tbody>
+                </table>
+                <table class="table table-striped"id="likemusiclistall" hidden="hidden" >
+                    <thead>
+                    <tr >
+                        <th style="width: 160px;">总<span style="color: #0f0f0f"id="almusisnum"></span>首</th>
+                        <th></th>
+                        <th></th>
+                        <th style="width: 60px;cursor: pointer"   ><i class="iconfont" style="vertical-align:middle;font-size:14px;color: #0f0f0f;">&#xe60f;</i>清空</th>
+                    </tr>
+                    </thead>
+                    <tbody id="musiclike"  >
+                    <tr ng-repeat="data in datas"ng-class="{change1:$index==change1selected}" ng-mouseenter="changecolor($index)" ng-mouseleave="changeorign($index)"ng-click="playmusicqw($event)">
+                        <td>{{data.musictitle}}</td>
+                        <td>{{data.singer}}</td>
+                        <td>{{data.musictotaltime}}</td>
+                        <td ng-click="deletemusiclike($index)"><label style="width: 25px"></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelike"+i+"'>&#xe641;</i></td>
+                    </tr>
+                    <tr ng-repeat="item in items" style="height: 39px">
+                        <td>{{item.item1}}</td>
+                        <td>{{item.item2}}</td>
+                        <td>{{item.item3}}</td>
+                        <td>{{item.item4}}</td>
+                    </tr>
+                    <tr>
+                        <td><i ng-show="updown.updown1>0" class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'ng-click="likelistup()" >&#xe62a;</i></td>
+                        <td>{{updown.updown2}}</td>
+                        <td>{{updown.updown3}}</td>
+                        <td><label style="width: 25px"></label><i ng-show="updown.updown4=='false'" class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown' ng-click="likelistdown()">&#xe62b;</i></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+        </div>
+
+    </div>
+</div>
+</div>
+<script>
+    var play=parent.playparent;
+    var audio=parent.audioparent;
+    var totalTime=parent.totalTimeparent;
+    var prev=parent.prevparent;
+    var next=parent.nextparent;
+    var musicmodemarkson=parent.musicmodemark;
+    var prevmarkson=parent.prevmark;
+    var nowmusicmarkson=parent.nowmusicmark;
+    var bolangmusicson=parent.bolangmusic;
+    var showmusictitle=parent.showmusictitleparent;
+    var showsinger=parent.showsingerparent;
+    var showpicture=parent.showpictureparent;
+    var musicformpage=0;
+    var musiclistpage=0;
+    var musiclikepage=0
+    var mcq=$("#musiclikepage").val();
+//    $(document).ready(function () {
+//
+//
+//
+//
+//        // 判断文件缓冲进度
+//        /*setInterval(function updateCache() {
+//            var buffered, percent;
+//            // 已缓冲部分
+//            audio.readyState == 4 && (buffered = audio.buffered.end(0));
+//
+//            // 已缓冲百分百
+//            audio.readyState == 4 && (percent = Math.round(buffered / audio.duration * 100) + '%');
+//            loadBar.style.width = (Math.round(buffered / audio.duration * 100) * musicBar.clientWidth * 0.01) + 'px';
+//        }, 1000);*/
+//    });
+
+
+    function MusiclikeController($scope){
+        $scope.datas=[];
+        $scope.items=[];
+        $scope.updown={};
+        function playmusic(event) {
+            var musictitlesinger = event.data;
+            var musicand = musictitlesinger.split(",");
+            var musictitle = musicand[0];
+            var singer = musicand[1];
+            var isformlist=musicand[2];
+            var musicid=musicand[3];
+            var nowmusicmarksonval=nowmusicmarkson.value;
+            nowmusicmarksonval=musicid;
+            $.ajax({
+                type: 'post',
+                url: '/musicwhere',
+                data: {
+                    "musictitlesinger": musictitlesinger
+                },
+                dataType: 'json',
+                success: function (msg) {
+                    play.onclick=function () {
+                        if(audio.paused){
+                            play.innerHTML='&#xe607;'
+                            audio.play();
+                        }
+                        else{
+                            play.innerHTML='&#xe614;'
+                            audio.pause();
+                        }
+                    }
+                    var result = eval(msg);
+                    var musicplace = result.musicplace;
+                    var musicpicture=result.musicpicture;
+                    audio.src=musicplace;
+                    play.innerHTML='&#xe607;'
+                    audio.play();
+                    showmusiclong();
+                    showmusictitle.html(musictitle);
+                    showsinger.html(singer);
+                    showpicture.attr('src',musicpicture);
+                }
+            });
+
+            prev.onclick=function prevmusic(){
+                $.ajax({
+                    type:'post',
+                    url:'/allmusicnumwhere',
+                    dataType:'json',
+                    success:function (msg){
+                        var result=eval(msg);
+                        var musicnum=result.musicnum;
+                        if(musicnum!=0){
+                            if(nowmusicmarksonval==0){
+                                nowmusicmarksonval=musicnum;
+                            }
+                            nowmusicmarksonval--;
+                            $.ajax({
+                                type:'post',
+                                url:'/prevformlist',
+                                data:{
+                                    "nowmusicmarksonval":nowmusicmarksonval,
+                                    "isformlist":isformlist
+                                },
+                                dataType:'json',
+                                success:function (msg) {
+                                    var result=eval(msg);
+                                    var prevmusictitle=result.prevmusictitle;
+                                    var prevmusicsinger=result.prevmusicsinger;
+                                    var prevmusicpicture=result.prevmusicpicture;
+                                    var prevmusicplace=result.prevmusicplace;
+                                    audio.src=prevmusicplace;
+                                    play.innerHTML='&#xe607;'
+                                    audio.play();
+                                    showmusictitle.html(prevmusictitle);
+                                    showsinger.html(prevmusicsinger);
+                                    showpicture.attr('src',prevmusicpicture);
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+            next.onclick=function nextmusic() {
+                $.ajax({
+                    type:'post',
+                    url:'/allmusicnumwhere',
+                    dataType:'json',
+                    success:function (msg) {
+                        var result=eval(msg);
+                        var musicnum=result.musicnum;
+                        if(musicnum!=0){
+                            if(nowmusicmarksonval==musicnum-1){
+                                nowmusicmarksonval=-1;
+                            }
+                            nowmusicmarksonval++;
+                            $.ajax({
+                                type:'post',
+                                url:'/nextformlist',
+                                data:{
+                                    "nowmusicmarksonval":nowmusicmarksonval,
+                                    "isformlist":isformlist
+                                },
+                                dataType:'json',
+                                success:function (msg) {
+                                    var result=eval(msg);
+                                    var nextmusictitle=result.nextmusictitle;
+                                    var nextmusicsinger=result.nextmusicsinger;
+                                    var nextmusicpicture=result.nextmusicpicture;
+                                    var nextmusicplace=result.nextmusicplace;
+                                    audio.src=nextmusicplace;
+                                    play.innerHTML='&#xe607;'
+                                    audio.play();
+                                    showmusictitle.html(nextmusictitle);
+                                    showsinger.html(nextmusicsinger);
+                                    showpicture.attr('src',nextmusicpicture);
+                                }
+                            })
+
+                        }
+                    }
+                })
+            }
+        }
+        likelist1();
+        $.ajax({
+            type:'post',
+            url:'/musicform1',
+            datatType:'json',
+            success:function (msg) {
+                $("#musictv").html("");
+                var result=eval(msg);
+                var allmusic1=result.allmusic1;
+                var str="";
+                var num=allmusic1.length;
+                for(var i=0;i<num;i++){
+                    var musictitle=allmusic1[i].musictitle;
+                    var singer=allmusic1[i].singer;
+                    var musiccd=allmusic1[i].musiccd;
+                    str+="<tr>"+"<td id='musictitle"+i+"'>"+musictitle+"</td>"+"<td id='singer"+i+"'>"+singer+"</td>"+"<td id='musiccd"+i+"'>"+musiccd+"</td>"+"<td>"+"<span class='glyphicon glyphicon-play-circle'id='changemusic"+i+"' style='cursor: pointer'></span>"+"<span class='glyphicon glyphicon-heart'id='addlikemusic"+i+"' style='cursor: pointer;margin-left: 6px;margin-right: 6px;'></span>"+"<span class='glyphicon glyphicon-plus'id='addlistmusic"+i+"' style='cursor: pointer'></span>"+"</td></tr>"
+                }
+
+                str+="<tr><td></td><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;position: absolute;left: 275px'>"+'&#xe61e;'+"</i></td><td>"+"</td><td><label style='width:  25px'></label><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformdown'>"+'&#xe62b;'+"</i></td></tr>";
+                $("#musictv").append(str);
+                for(var i=0;i<num;i++){
+                    var musictitle=$('#musictitle'+i+'').html();
+                    var singer=$('#singer'+i+'').html();
+                    var musictitlesinger=musictitle+","+singer;
+                    $('#changemusic'+i+'').bind('click',musictitlesinger,playmusic);
+                    $('#addlikemusic'+i+'').bind('click',musictitlesinger,addlikemusic);
+                    $('#addlistmusic'+i+'').bind('click',musictitlesinger,addlistmusic);
+                }
+                $("#musicformdown").bind('click',musicpage);
+            }
+        });
+        function likelist1() {
+            $.ajax({
+                type:'post',
+                url:'/likelist1',
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var datas=result.alllistmusic1;
+                    var iseight=result.iseight;
+                    var num=datas.length;
+                    var items=[];
+                    var updown={updown1:"",updown2:"波浪音乐",updown3:"",updown4:""};
+                    if(num<8){
+                        $scope.$apply(function () {
+                            $scope.datas=datas;
+                        })
+                        for(var i=0;i<8-num;i++){
+                            var item={item1:"",item2:"",item3:"",item4:""};
+                            items.push(item);
+                        }
+                        $scope.$apply(function () {
+                            $scope.items=items;
+                            $scope.updown=updown;
+                        })
+                    }else{
+                        updown.updown4=iseight;
+                        $scope.$apply(function () {
+                            $scope.updown=updown;
+                            $scope.datas=datas;
+                        })
+                    }
+                }
+            })
+        }
+        function addlikemusic(event){
+            var musictitlesinger = event.data;
+            var musicand = musictitlesinger.split(",");
+            var musictitle = musicand[0];
+            var singer = musicand[1];
+            if($(this).attr('color')=='red'){
+                $(this).css('color','');
+                $(this).attr('color','');
+            }
+            else{
+                $.ajax({
+                    type:'post',
+                    url:'/addlike',
+                    data: {
+                        "musictitlesinger": musictitlesinger
+                    },
+                    dataType:'json',
+                    success:function (msg) {
+                        var result=eval(msg);
+                        if(result.result=="success"){
+                            alert("添加成功");
+                            $.ajax({
+                                type:'post',
+                                url:'/likelist1',
+                                dataType:'json',
+                                success:function (msg) {
+                                    var result=eval(msg);
+                                    var datas=result.alllistmusic1;
+                                    var iseight=result.iseight;
+                                    var num=datas.length;
+                                    var items=[];
+                                    $scope.$apply(function () {
+                                        $scope.datas=datas;
+                                    });
+                                    var updown={updown1:"",updown2:"波浪音乐",updown3:"",updown4:""};
+                                    if(num<8){
+                                        for(var i=0;i<8-num;i++){
+                                            var item={item1:"",item2:"",item3:"",item4:""};
+                                            items.push(item);
+                                        }
+                                    }else{
+                                        updown.updown4=iseight;
+                                    }
+                                    $scope.$apply(function () {
+                                        $scope.items=items;
+                                        $scope.updown=updown;
+                                    })
+                                }
+                            })
+                        }
+                        else if(result.result=="fail"){
+                            alert("添加失败");
+                        }
+                    }
+                })
+                $(this).css('color','red');
+                $(this).attr('color','red');
+                var val=$(this).attr('color');
+            }
+        }
+        function addlistmusic(event) {
+            var musictitlesinger = event.data;
+            var musicand = musictitlesinger.split(",");
+            var musictitle = musicand[0];
+            var singer = musicand[1];
+            $.ajax({
+                type:'post',
+                url:'/addmusic',
+                data: {
+                    "musictitlesinger": musictitlesinger
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        $(this).animate({width:'3px'},'slow');
+                        $(this).animate({width:'0px'},'slow');
+                        $(this).animate({width:'3px'},'slow');
+                        alert("添加成功");
+                        window.location.reload();
+                        showallmusicnum();
+                    }
+                    else if(result.result=="fail"){
+                        alert("添加失败");
+                    }
+                }
+            })
+        }
+        function deletemusiclist(event){
+            var musictitlesinger = event.data;
+            var musicand = musictitlesinger.split(",");
+            var musictitle = musicand[0];
+            var singer = musicand[1];
+            $.ajax({
+                type:'post',
+                url:'/deletemusic',
+                data: {
+                    "musictitlesinger": musictitlesinger
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        alert("删除完毕");
+                        window.location.reload();
+                        showallmusicnum();
+                    }
+                }
+            })
+            event.stopPropagation();
+        }
+        $scope.likelistup=function () {
+            musiclikepage--;
+            mcq=musiclikepage;
+            $scope.items=[];
+            $.ajax({
+                type:'post',
+                url:'/likelist',
+                data:{
+                    "musiclikepage":musiclikepage
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var allmusiclist=result.allmusiclist;
+                    var datas=result.allmusiclist;
+                    var updown={updown1:"",updown2:"波浪音乐",updown3:"",updown4:""};
+                    updown.updown1=musiclikepage;
+                    updown.updown4="false";
+                    $scope.$apply(function () {
+                        $scope.datas=datas;
+                        $scope.updown=updown;
+                    })
+                }
+            })
+        }
+        $scope.likelistdown=function () {
+            musiclikepage++;
+            mcq=musiclikepage;
+            $.ajax({
+                type:'post',
+                url:'/likelist',
+                data:{
+                    "musiclikepage":musiclikepage
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var allmusiclist=result.allmusiclist;
+                    var finallist=result.final;
+                    var datas=result.allmusiclist;
+                    var updown={updown1:"",updown2:"波浪音乐",updown3:"",updown4:""};
+                    updown.updown1=musiclikepage;
+                    if(finallist=="finallist"){
+                        var musicnum=allmusiclist.length;
+                        var items=[];
+                            $scope.$apply(function () {
+                                $scope.datas=datas;
+                            })
+                        for(var i=0;i<8-musicnum;i++){
+                            var item={item1:"",item2:"",item3:"",item4:""};
+                            items.push(item);
+                        }
+                        $scope.$apply(function () {
+                            $scope.items=items;
+                            $scope.updown=updown;
+                        })
+                    }
+                    else{
+                        updown.updown4="false";
+                        $scope.$apply(function () {
+                            $scope.updown=updown;
+                            $scope.datas=datas;
+                        })
+                    }
+                }
+            })
+        }
+        $scope.deletemusiclike=function($index){
+            var deletefinal=$index+mcq*8;
+            $.ajax({
+                type:'post',
+                url:'/deletelike',
+                data: {
+                    "musicid":deletefinal
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        alert("删除完毕");
+                        $.ajax({
+                            type:'post',
+                            url:'/likelist1',
+                            dataType:'json',
+                            success:function (msg) {
+                                var result=eval(msg);
+                                var datas=result.alllistmusic1;
+                                var iseight=result.iseight;
+                                var num=datas.length;
+                                var items=[];
+                                $scope.$apply(function () {
+                                    $scope.datas=datas;
+                                });
+                                var updown={updown1:"",updown2:"波浪微博",updown3:"",updown4:""};
+                                if(num<8){
+                                    for(var i=0;i<8-num;i++){
+                                        var item={item1:"",item2:"",item3:"",item4:""};
+                                        items.push(item);
+                                    }
+                                }else{
+                                    updown.updown4=iseight;
+                                }
+                                $scope.$apply(function () {
+                                    $scope.items=items;
+                                    $scope.updown=updown;
+                                })
+                            }
+                        })
+                    }
+                }
+            })
+            event.stopPropagation();
+        }
+        $scope.playmusicqw=function (event) {
+            alert(111);
+        }
+        $scope.changecolor=function(i) {
+            $scope.change1selected=i;
+        }
+        $scope.changeorign=function($index){
+        }
+
+
+        function  changecolor() {
+            $(this).css('background','#5bc0de');
+        }
+        function  changeorign() {
+            $(this).css('background','');
+        }
+        function showmusiclong() {
+            audio.addEventListener("canplay", function(){
+                var sc=audio.duration;
+                var fen = parseInt(sc / 60);
+                var miao = parseInt(sc % 60);
+                if (miao < 10) {
+                    totalTime.innerHTML = fen + ':0' + miao;
+                }else {
+                    totalTime.innerHTML = fen + ':' + miao;
+                }
+            });
+        }
+        function showmusiclist1(){
+            $.ajax({
+                type:'post',
+                url:'/playlist1',
+                datatType:'json',
+                success:function (msg) {
+                    $("#musiclist").html("");
+                    var result=eval(msg);
+                    var alllistmusic1=result.alllistmusic1;
+                    var iseight=result.iseight;
+                    var str="";
+                    var num=alllistmusic1.length;
+                    if(num<8){
+                        for(var i=0;i<num;i++){
+                            var musictitle=alllistmusic1[i].musictitle;
+                            var singer=alllistmusic1[i].singer;
+                            var musictotaltime=alllistmusic1[i].musictotaltime;
+                            str+="<tr id='musicplaylist"+i+"'>"+"<td id='musictitlelist"+i+"'>"+musictitle+"</td>"+"<td id='singerlist"+i+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+i+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+i+"'>&#xe641;</i>"+"</td></tr>";
+                        }
+                        for(var i=0;i<8-num;i++){
+                            str+="<tr style='height: 39px'>"+"<td>"+"</td>"+"<td >"+"</td>"+"<td >"+"</td>"+"<td>"+"<label style='width: 25px'></label>"+"</td></tr>";
+                        }
+                        str+="<tr><td>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label>"+"</td></tr>";
+                        $("#musiclist").append(str);
+                        for(var i=0;i<num;i++){
+                            var musictitle=$('#musictitlelist'+i+'').html();
+                            var singer=$('#singerlist'+i+'').html();
+                            var musictitlesinger=musictitle+","+singer+",list,"+((musiclistpage*8+i));
+                            $('#musicdeletelist'+i+'').bind('click',musictitlesinger,deletemusiclist);
+                            $('#musicplaylist'+i+'').bind('mouseenter',changecolor);
+                            $('#musicplaylist'+i+'').bind('mouseleave',changeorign);
+                            $('#musicplaylist'+i+'').bind('dblclick',musictitlesinger,playmusic);
+                        }
+                    }
+                    else{
+                        for(var i=0;i<8;i++){
+                            var musictitle=alllistmusic1[i].musictitle;
+                            var singer=alllistmusic1[i].singer;
+                            var musictotaltime=alllistmusic1[i].musictotaltime;
+                            str+="<tr id='musicplaylist"+i+"'>"+"<td id='musictitlelist"+i+"'>"+musictitle+"</td>"+"<td id='singerlist"+i+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+i+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+i+"'>&#xe641;</i>"+"</td></tr>";
+                        }
+                        if(iseight=="true"){
+                            str+="<tr><td>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label>"+"</td></tr>";
+                        }
+                        else{
+                            str+="<tr><td>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                        }
+                        $("#musiclist").append(str);
+                        for(var i=0;i<8;i++){
+                            var musictitle=$('#musictitlelist'+i+'').html();
+                            var singer=$('#singerlist'+i+'').html();
+                            var musictitlesinger=musictitle+","+singer+",list,"+((musiclistpage*8+i));
+                            $('#musicdeletelist'+i+'').bind('click',musictitlesinger,deletemusiclist);
+                            $('#musicplaylist'+i+'').bind('mouseenter',changecolor);
+                            $('#musicplaylist'+i+'').bind('mouseleave',changeorign);
+                            $('#musicplaylist'+i+'').bind('dblclick',musictitlesinger,playmusic);
+                        }
+                    }
+
+
+                    $("#musiclistdown").bind('click',musiclist);
+                }
+            })
+        }
+        function musicpage(){
+            $("#musictv").html("");
+            musicformpage++;
+            $.ajax({
+                type:'post',
+                url:'/musicform',
+                data:{
+                    "musicformpage":musicformpage
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var allmusic=result.allmusic;
+                    var finallist=result.final;
+                    if(finallist=="finallist"){
+                        var str="";
+                        var musicnum=allmusic.length;
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=allmusic[i].musictitle;
+                            var singer=allmusic[i].singer;
+                            var musiccd=allmusic[i].musiccd;
+                            str+="<tr>"+"<td id='musictitle"+musicformpage*9+i+"'>"+musictitle+"</td>"+"<td id='singer"+musicformpage*9+i+"'>"+singer+"</td>"+"<td id='musiccd"+musicformpage*9+i+"'>"+musiccd+"</td>"+"<td>"+"<span class='glyphicon glyphicon-play-circle'id='changemusic"+musicformpage*9+i+"' style='cursor: pointer'></span>"+"<span class='glyphicon glyphicon-heart'id='addlikemusic"+musicformpage*9+i+"' style='cursor: pointer;margin-left: 6px;margin-right: 6px;'></span>"+"<span class='glyphicon glyphicon-plus'id='addlistmusic"+musicformpage*9+i+"' style='cursor: pointer'></span>"+"</td></tr>"
+                        }
+                        str+="<tr><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformup'>"+'&#xe62a;'+"</i></td><td></td><td></td><td></td></tr>";
+                        $("#musictv").append(str);
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=$('#musictitle'+musicformpage*9+i+'').html();
+                            var singer=$('#singer'+musicformpage*9+i+'').html();
+                            var musictitlesinger=musictitle+","+singer;
+                            $('#changemusic'+musicformpage*9+i+'').bind('click',musictitlesinger,playmusic);
+                            $('#addlikemusic'+musicformpage*9+i+'').bind('click',musictitlesinger,addlikemusic);
+                            $('#addlistmusic'+musicformpage*9+i+'').bind('click',musictitlesinger,addlistmusic);
+                        }
+                        $("#musicformup").bind('click',musicpage1);
+                    }
+                    else{
+                        var str="";
+                        var musicnum=allmusic.length;
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=allmusic[i].musictitle;
+                            var singer=allmusic[i].singer;
+                            var musiccd=allmusic[i].musiccd;
+                            str+="<tr>"+"<td id='musictitle"+musicformpage*9+i+"'>"+musictitle+"</td>"+"<td id='singer"+musicformpage*9+i+"'>"+singer+"</td>"+"<td id='musiccd"+musicformpage*9+i+"'>"+musiccd+"</td>"+"<td>"+"<span class='glyphicon glyphicon-play-circle'id='changemusic"+musicformpage*9+i+"' style='cursor: pointer'></span>"+"<span class='glyphicon glyphicon-heart'id='addlikemusic"+musicformpage*9+i+"' style='cursor: pointer;margin-left: 6px;margin-right: 6px;'></span>"+"<span class='glyphicon glyphicon-plus'id='addlistmusic"+musicformpage*9+i+"' style='cursor: pointer'></span>"+"</td></tr>"
+                        }
+                        str+="<tr><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformup'>"+'&#xe62a;'+"</i></td><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;position: absolute;left: 275px'>"+'&#xe61e;'+"</i></td><td>"+"</td><td><label style='width:  25px'></label><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformdown'>"+'&#xe62b;'+"</i></td></tr>";
+                        $("#musictv").append(str);
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=$('#musictitle'+musicformpage*9+i+'').html();
+                            var singer=$('#singer'+musicformpage*9+i+'').html();
+                            var musictitlesinger=musictitle+","+singer;
+                            $('#changemusic'+musicformpage*9+i+'').bind('click',musictitlesinger,playmusic);
+                            $('#addlikemusic'+musicformpage*9+i+'').bind('click',musictitlesinger,addlikemusic);
+                            $('#addlistmusic'+musicformpage*9+i+'').bind('click',musictitlesinger,addlistmusic);
+                        }
+                        $("#musicformup").bind('click',musicpage1);
+                        $("#musicformdown").bind('click',musicpage);
+                    }
+                }
+            })
+        }
+        function musicpage1() {
+            $("#musictv").html("");
+            musicformpage--;
+            $.ajax({
+                type:'post',
+                url:'/musicform',
+                data:{
+                    "musicformpage":musicformpage
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var allmusic=result.allmusic;
+                    var str="";
+                    var musicnum=allmusic.length;
+                    for(var i=0;i<musicnum;i++){
+                        var musictitle=allmusic[i].musictitle;
+                        var singer=allmusic[i].singer;
+                        var musiccd=allmusic[i].musiccd;
+                        str+="<tr>"+"<td id='musictitle"+musicformpage*9+i+"'>"+musictitle+"</td>"+"<td id='singer"+musicformpage*9+i+"'>"+singer+"</td>"+"<td id='musiccd"+musicformpage*9+i+"'>"+musiccd+"</td>"+"<td>"+"<span class='glyphicon glyphicon-play-circle'id='changemusic"+musicformpage*9+i+"' style='cursor: pointer'></span>"+"<span class='glyphicon glyphicon-heart'id='addlikemusic"+musicformpage*9+i+"' style='cursor: pointer;margin-left: 6px;margin-right: 6px;'></span>"+"<span class='glyphicon glyphicon-plus'id='addlistmusic"+musicformpage*9+i+"' style='cursor: pointer'></span>"+"</td></tr>"
+                    }
+                    if(musicformpage==0){
+                        str+="<tr><td></td><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;position: absolute;left: 275px'>"+'&#xe61e;'+"</i></td><td>"+"</td><td><label style='width:  25px'></label><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformdown'>"+'&#xe62b;'+"</i></td></tr>";
+                    }
+                    else{
+                        str+="<tr><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformup'>"+'&#xe62a;'+"</i></td><td><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;position: absolute;left: 275px'>"+'&#xe61e;'+"</i></td><td>"+"</td><td><label style='width:  25px'></label><i class='iconfont' style='vertical-align:middle;font-size:30px;color: snow;'id='musicformdown'>"+'&#xe62b;'+"</i></td></tr>";
+                    }
+                    $("#musictv").append(str);
+                    for(var i=0;i<musicnum;i++){
+                        var musictitle=$('#musictitle'+musicformpage*9+i+'').html();
+                        var singer=$('#singer'+musicformpage*9+i+'').html();
+                        var musictitlesinger=musictitle+","+singer;
+                        $('#changemusic'+musicformpage*9+i+'').bind('click',musictitlesinger,playmusic);
+                        $('#addlikemusic'+musicformpage*9+i+'').bind('click',musictitlesinger,addlikemusic);
+                        $('#addlistmusic'+musicformpage*9+i+'').bind('click',musictitlesinger,addlistmusic);
+                    }
+                    $("#musicformup").bind('click',musicpage1);
+                    $("#musicformdown").bind('click',musicpage);
+                }
+            })
+        }
+        function musiclist(){
+            $("#musiclist").html("");
+            musiclistpage++;
+            $.ajax({
+                type:'post',
+                url:'/playlist',
+                data:{
+                    "musiclistpage":musiclistpage
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var allmusiclist=result.allmusiclist;
+                    var finallist=result.final;
+                    if(finallist=="finallist"){
+                        var str="";
+                        var musicnum=allmusiclist.length;
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=allmusiclist[i].musictitle;
+                            var singer=allmusiclist[i].singer;
+                            var musictotaltime=allmusiclist[i].musictotaltime;
+                            str+="<tr id='musicplaylist"+((musiclistpage*8+i))+"'>"+"<td id='musictitlelist"+((musiclistpage*8+i))+"'>"+musictitle+"</td>"+"<td id='singerlist"+((musiclistpage*8+i))+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+((musiclistpage*8+i))+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+((musiclistpage*8+i))+"'>&#xe641;</i>"+"</td></tr>";
+                        }
+                        for(var i=0;i<8-musicnum;i++){
+                            str+="<tr style='height: 39px'>"+"<td>"+"</td>"+"<td >"+"</td>"+"<td >"+"</td>"+"<td>"+"<label style='width: 25px'></label>"+"</td></tr>";
+                        }
+                        str+="<tr><td>"+"<i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'>&#xe62a;</i>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label>"+"</td></tr>";
+                        $("#musiclist").append(str);
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=$('#musictitlelist'+(musiclistpage*8+i)+'').html();
+                            var singer=$('#singerlist'+(musiclistpage*8+i)+'').html();
+                            var musictitlesinger=musictitle+","+singer+",list,"+(musiclistpage*8+i);
+                            $('#musicdeletelist'+(musiclistpage*8+i)+'').bind('click',musictitlesinger,deletemusiclist);
+                            $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseenter',changecolor);
+                            $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseleave',changeorign);
+                            $('#musicplaylist'+(musiclistpage*8+i)+'').bind('dblclick',musictitlesinger,playmusic);
+                        }
+                        $("#musiclistup").bind('click',musiclist1);
+                    }
+                    else{
+                        var str="";
+                        var musicnum=allmusiclist.length;
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=allmusiclist[i].musictitle;
+                            var singer=allmusiclist[i].singer;
+                            var musictotaltime=allmusiclist[i].musictotaltime;
+                            str+="<tr id='musicplaylist"+(musiclistpage*8+i)+"'>"+"<td id='musictitlelist"+(musiclistpage*8+i)+"'>"+musictitle+"</td>"+"<td id='singerlist"+(musiclistpage*8+i)+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+(musiclistpage*8+i)+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+(musiclistpage*8+i)+"'>&#xe641;</i>"+"</td></tr>";
+                        }
+                        str+="<tr><td>"+"<i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'>&#xe62a;</i>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                        $("#musiclist").append(str);
+                        for(var i=0;i<musicnum;i++){
+                            var musictitle=$('#musictitlelist'+(musiclistpage*8+i)+'').html();
+                            var singer=$('#singerlist'+(musiclistpage*8+i)+'').html();
+                            var musictitlesinger=musictitle+","+singer+",list,"+(musiclistpage*8+i);
+                            $('#musicdeletelist'+(musiclistpage*8+i)+'').bind('click',musictitlesinger,deletemusiclist);
+                            $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseenter',changecolor);
+                            $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseleave',changeorign);
+                            $('#musicplaylist'+(musiclistpage*8+i)+'').bind('dblclick',musictitlesinger,playmusic);
+                        }
+                        $("#musiclistup").bind('click',musiclist1);
+                        $("#musiclistdown").bind('click',musiclist);
+                    }
+                }
+            })
+        }
+        function musiclist1() {
+            $("#musiclist").html("");
+            musiclistpage--;
+            $.ajax({
+                type:'post',
+                url:'/playlist',
+                data:{
+                    "musiclistpage":musiclistpage
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var allmusiclist=result.allmusiclist;
+                    var str="";
+                    var musicnum=allmusiclist.length;
+                    for(var i=0;i<musicnum;i++){
+                        var musictitle=allmusiclist[i].musictitle;
+                        var singer=allmusiclist[i].singer;
+                        var musictotaltime=allmusiclist[i].musictotaltime;
+                        str+="<tr id='musicplaylist"+(musiclistpage*8+i)+"'>"+"<td id='musictitlelist"+(musiclistpage*8+i)+"'>"+musictitle+"</td>"+"<td id='singerlist"+(musiclistpage*8+i)+"'>"+singer+"</td>"+"<td id='musictotaltimelist"+(musiclistpage*8+i)+"'>"+musictotaltime+"</td>"+"<td>"+"<label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:14px;color: #0f0f0f;' id='musicdeletelist"+(musiclistpage*8+i)+"'>&#xe641;</i>"+"</td></tr>";
+                    }
+                    if(musiclistpage==0){
+                        str+="<tr><td>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                    }
+                    else{
+                        str+="<tr><td>"+"<i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistup'>&#xe62a;</i>"+"</td><td>"+"<label>"+"</label>波浪音乐</td>"+"<td></td>"+"<td><label style='width: 25px'></label><i class='iconfont' style='vertical-align:middle;font-size:16px;color: #0f0f0f;'id='musiclistdown'>&#xe62b;</i>"+"</td></tr>";
+                    }
+                    $("#musiclist").append(str);
+                    for(var i=0;i<musicnum;i++){
+                        var musictitle=$('#musictitlelist'+(musiclistpage*8+i)+'').html();
+                        var singer=$('#singerlist'+(musiclistpage*8+i)+'').html();
+                        var musictitlesinger=musictitle+","+singer+",list,"+(musiclistpage*8+i);
+                        $('#musicdeletelist'+(musiclistpage*8+i)+'').bind('click',musictitlesinger,deletemusiclist);
+                        $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseenter',changecolor);
+                        $('#musicplaylist'+(musiclistpage*8+i)+'').bind('mouseleave',changeorign);
+                        $('#musicplaylist'+(musiclistpage*8+i)+'').bind('dblclick',musictitlesinger,playmusic);
+                    }
+                    $("#musiclistup").bind('click',musiclist1);
+                    $("#musiclistdown").bind('click',musiclist);
+                }
+            })
+        }
+        function showallmusicnum(){
+            $.ajax({
+                type:'post',
+                url:'/allmusicnumwhere',
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var musicnum=result.musicnum;
+                    $("#allmusicnum").html(musicnum);
+                }
+            })
+        }
+
+        showmusiclist1();
+        showallmusicnum();
+
+    }
+    function showplaylist() {
+        $("#playmusiclistall").show();
+        $("#likemusiclistall").hide();
+        $("#playlistbtn").css('background','#8c8c8c');
+        $("#likelistbtn").css('background','');
+    }
+    function showlikelist(){
+        $("#playmusiclistall").hide();
+        $("#likemusiclistall").show();
+        $("#likelistbtn").css('background','#8c8c8c');
+        $("#playlistbtn").css('background','');
+    }
+    function emptylist(){
+        var isempty=confirm("是否清空");
+        if(isempty==true){
+            $.ajax({
+                type:'post',
+                url:'/emptylist',
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        showallmusicnum();
+                        showmusiclist1();
+                    }
+                }
+            })
+        }
+    }
+    var app=angular.module("mucisapp",[]);
+    app.controller("MusiclikeController",MusiclikeController);
+
+</script>
+</body>
+</html>

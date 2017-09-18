@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>登录</title>
+<script src='/javascripts/jquery-3.1.0.min.js'></script>
+	<script src='/javascripts/bootstrap.min.js'></script>
+	<link rel="stylesheet" href='stylesheets/bootstrap.min.css'>
+	<style>
+		form{
+			padding: 280px 500px;
+		}
+	</style>
+</head>
+<body background='images/bolang.jpg'>
+<form class="form-horizontal" role="form">
+	<div class="form-group">
+		<label for="username" class="col-sm-3 control-label">用户名</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control"name="username" id="username" placeholder="请输入用户名">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="pwd" class="col-sm-3 control-label">密码</label>
+		<div class="col-sm-9">
+			<input type="password" class="form-control" name="pwd" id="pwd" placeholder="请输入密码">
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-offset-3 col-sm-10">
+			<input type="button" onclick="lg()" class="btn btn-default" value="登录">
+			<input type="button" onclick="re()" class="btn btn-default" value="注册">
+		</div>
+	</div>
+</form>
+<script>
+	function lg(){
+		var username=$("#username").val();
+		var pwd=$("#pwd").val();
+		$.ajax({
+			type:'GET',
+			url:'/login',
+			data:{
+				"username":username,
+				"pwd":pwd
+			},
+			dataType:'json',
+			success:function(msg){
+				var result=eval(msg);
+				if(result.result=="success"){
+					alert("登录	成功");
+					location.href="/allfunction";
+				}
+				else
+				{
+					alert("登录失败");
+				}
+			}
+		})
+	}
+	function re(){
+		location.href="/register"
+	}
+</script>
+</body>
+</html>

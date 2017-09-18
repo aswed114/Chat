@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>波浪微博</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href='stylesheets/bootstrap-3.3.7/css/bootstrap.min.css'>
+    <script src='javascripts/jquery-3.1.0.min.js'></script>
+    <script src='javascripts/bootstrap.min.js'></script>
+    <style>
+        body {
+            padding-top: 50px;
+            padding-left: 50px;
+        }
+        body{
+            font-family: "微软雅黑";
+        }
+        .tablemusic,label{
+            color: white;
+        }
+        .size{
+            height: 600px;
+        }
+        .divImg{
+            max-height: 450px; max-width:450px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#" >波浪微博</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/blog" ><span class="glyphicon glyphicon-home"></span> 主界面</a></li>
+                <li><a href="/allfunction" ><span class="glyphicon glyphicon-pencil"></span> 微博</a></li>
+                <li><a href="#" ><span class="glyphicon glyphicon-headphones"></span> 音乐</a></li>
+                <li><a href="#" ><span class="glyphicon glyphicon glyphicon-user"></span> 大众圈</a></li>
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                <div class="dropdown">
+                    <button type="button" class="btn dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" style="background: transparent;color: white;">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="/personmessage">个人信息</a>
+                        </li>
+                        <li role="presentation" >
+                            <a role="menuitem" tabindex="-1" href="" onclick="changepw()">修改密码</a>
+                        </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="/">退出登陆</a>
+                        </li>
+                    </ul>
+                </div>
+            </ul>
+        </div>
+        <div id="personmessageleft" class="panel panel-default col-sm-3 person" >
+
+
+            <div class="panel-body">
+                <div style="width:200px ;height: 200px;margin-left: 5px;">
+                    <img src=""id="myhead"class="img-thumbnail"style="display:block;width: 100%;height: 100%;">
+                </div>
+                <div>
+                    <span>我的关注</span><label style="width: 95px;"></label><span>我的粉丝</span>
+                </div>
+                <div>
+                    <label style="width: 10px;"></label>
+                    <span><a href="">123</a></span>
+                    <label style="width: 120px;"></label>
+                    <span><a href="">325</a></span>
+                </div>
+                <form id='editchangehead' method='post' action='/upchangehead' enctype='multipart/form-data'>
+                    <input name="head" id='uphead' type='file' style="display: none;"/>
+                </form>
+                <label style="width:12px"></label>
+                <button id="changehead" class="btn btn-info"onclick="$('input[id=uphead]').click();">修改头像</button>
+                <button  class="btn btn-info" onclick="changemxe()">修改资料</button>
+        </div>
+        </div>
+        <div id="personmessagemusic" class="col-sm-offset-3 person" >
+            <div class="panel panel-default"style="margin-left: 10px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        我的音乐
+                    </h3>
+                </div>
+                <div class="panel-body" style="height: 267px;">
+
+                </div>
+            </div>
+        </div>
+        <div id="personmessageblog" class="person">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="height: 62px">
+                    <h3 class="panel-title">
+                        <label style="width: 1px"></label> 我的微博
+                    </h3>
+                    <ul class="pagination" style="margin:0px" id="pagination">
+                    </ul>
+                </div>
+                <div  style="height: 164px">
+                    <div style="margin: 0px 0px">
+                        <table class="table table-bordered" id="persontitletime"  >
+                            <thead>
+                            <tr>
+                                <th width="450px">标题</th>
+                                <th width="300px">时间</th>
+                                <th>操作</th>
+                            </tr>
+                            <thead>
+                            <tbody id='persontitletimebody'></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+<script>
+    $(document).ready(function () {
+
+        $.ajax({
+            type: 'post',
+            url: '/blogname',
+            dataType: 'json',
+            success: function (msg) {
+                var result = eval(msg);
+                var nickname = result.nickname;
+                $("#dropdownMenu1").html("欢迎您," + nickname + "<span class='caret'></span>");
+            }
+        })
+            $.ajax({
+                type:'post',
+                url:'/personbloghead',
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    var myhead=result.myhead;
+                    $("#myhead").attr('src',myhead);
+                }
+            });
+        $.ajax({
+            type:'post',
+            url:'/personblogshow1',
+            dataType:'json',
+            success:function (msg) {
+                var str="";
+                var result=eval(msg);
+                var singledouble=result.singledouble;
+                var showperson1=result.showperson1;
+                for(var i=0;i<singledouble;i++){
+                    var title=showperson1[i].title;
+                    var time=showperson1[i].time;
+                    str+="<tr style='height: 63px'>"+"<td id='titlemessage"+i+"'>"+title+"</td>"+"<td id='timemessage"+i+"'>"+time+"</td>"+"<td><button type='button' class=' btn-default btn 'id='see"+i+"'>查看</button type='button' class='btn-default btn'><button type='button' class='btn-default btn ' id='alter"+i+"' >修改</button><button class='btn-default btn ' id='delete"+i+"'>删除</button>"+"</td></tr>";
+                }
+                $("#persontitletimebody").append(str);
+                for(var i=0;i<singledouble;i++){
+                    var titlemessage=$('#titlemessage'+i+'').html();
+                    var timemessage=$('#timemessage'+i+'').html();
+                    var titletime=titlemessage+","+timemessage;
+                    $('#see'+i+'').bind('click',titletime,seepersonblog);
+                    $('#alter'+i+'').bind('click',titletime,alterpersonblog);
+                    $('#delete'+i+'').bind('click',titletime,deletepersonblog);
+                }
+            }
+        })
+        $.ajax({
+            type:'post',
+            url:'/personblogpage',
+            dataType:'json',
+            success:function (msg) {
+                $("#pagination").html("");
+                var str="";
+                var result=eval(msg);
+                var personblogpage=result.personblogpage;
+                if(personblogpage!=0){
+                    for(var i=1;i<=personblogpage;i++){
+                        str+="<li><a href='#' class='select'>"+i+"</a></li>";
+                    }
+                    $("#pagination").append(str);
+                    $(".select").bind('click',selectpage);
+                }
+                else{
+                    var message="您暂时还未发表任何微博"
+                    str+="<span style='color: red'>"+message+"</span>";
+                    $("#pagination").append(str);
+                }
+            }
+        });
+    });
+    function selectpage() {
+        var selectpage=$(this).html();
+        $.ajax({
+            type:'post',
+            url:'/personblog',
+            data:{
+                "selectpage":selectpage
+            },
+            dataType:'json',
+            success:function (msg) {
+                $("#persontitletimebody").html("");
+                var result=eval(msg);
+                var personblog=result.username;
+                var str="";
+                var personnum=personblog.length;
+                for(var i=0;i<personnum;i++){
+                    var title=personblog[i].title;
+                    var time=personblog[i].time;
+                    str+="<tr style='height: 63px'>"+"<td id='titlemessage"+i+"'>"+title+"</td>"+"<td id='timemessage"+i+"'>"+time+"</td>"+"<td><button type='button' class=' btn-default btn 'id='see"+i+"'>查看</button type='button' class='btn-default btn'><button type='button' class='btn-default btn ' id='alter"+i+"' >修改</button><button class='btn-default btn ' id='delete"+i+"'>删除</button>"+"</td></tr>";
+                }
+                $("#persontitletimebody").append(str);
+                for(var i=0;i<personnum;i++){
+                    var titlemessage=$('#titlemessage'+i+'').html();
+                    var timemessage=$('#timemessage'+i+'').html();
+                    var titletime=titlemessage+","+timemessage;
+                    $('#see'+i+'').bind('click',titletime,seepersonblog);
+                    $('#alter'+i+'').bind('click',titletime,alterpersonblog);
+                    $('#delete'+i+'').bind('click',titletime,deletepersonblog);
+                }
+            }
+        });
+    }
+    function seepersonblog(event) {
+        var titletime=event.data;
+        $.ajax({
+            type:'post',
+            url:'/seepersonblog',
+                data:{
+                "titletime":titletime
+            },
+            dataType:'json',
+            success:function(msg){
+                var result=eval(msg);
+                if(result.result=="success"){
+                    location.href="/seepersonblogview";
+                }
+            }
+        })
+    }
+    function alterpersonblog(event){
+        var titletime=event.data;
+        $.ajax({
+            type:'post',
+            url:'/seepersonblog',
+            data:{
+                "titletime":titletime
+            },
+            dataType:'json',
+            success:function(msg){
+                var result=eval(msg);
+                if(result.result=="success"){
+                    location.href="/alterpersonblogview";
+                }
+            }
+        })
+    }
+    function deletepersonblog(event){
+        var isdelete=confirm("是否删除");
+        if(isdelete=true){
+            var titletime=event.data;
+            $.ajax({
+                type:'post',
+                url:'/deletepersonblog',
+                data:{
+                    "titletime":titletime
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        alert("删除完毕");
+                        location.href="/personmessage"
+                    }
+                }
+            })
+        }
+    }
+    $("#uphead").change(function() {
+        var preview = document.querySelector('#myhead');
+        var file = document.querySelector('#uphead').files[0];
+        var reader = new FileReader();
+        reader.addEventListener("load", function () {
+            var oimg=preview.src;
+            preview.src = reader.result;
+            var nimg=preview.src;
+            setTimeout(function(){
+                if(oimg!=nimg){
+                    var ismyhead=confirm("是否确认修改");
+                    if(ismyhead==true){
+                        $("#editchangehead").submit();
+                        setTimeout(function () {
+                            $.ajax({
+                                type:'post',
+                                url:'changemyhead',
+                                dataType:'json',
+                                success:function (msg) {
+                                    var result=eval(msg);
+                                    if(result.result=="success"){
+                                        alert("修改完成");
+                                    }
+                                }
+                            })
+                        },500);
+                    }
+                    else if(ismyhead==false){
+                        alert("修改失败");
+                    }
+                }
+            },1000)
+        }, false);
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+
+    })
+    function changemxe() {
+        location.href="/changemessage";
+    }
+    function  changepw() {
+        window.open('/changepassword','_blank','width=300,height=130,menubar=no,toolbar=no,top=250px,left=560px');
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>波浪微博</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href='stylesheets/bootstrap-3.3.7/css/bootstrap.min.css'>
+    <script src='javascripts/jquery-3.1.0.min.js'></script>
+    <script src='javascripts/bootstrap.min.js'></script>
+    <style>
+        body{
+            font-family: "微软雅黑";
+        }
+        .tablemusic,label{
+            color: white;
+        }
+        .size{
+            height: 600px;
+        }
+        .divImg{
+            max-height: 450px; max-width:450px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="navbar navbar-fixed-top navbar-inverse" role="navigation" style="margin-top: 50px;border-bottom: hidden">
+  <div class="container">
+      <div class="panel-body size"id="mainscreen" >
+          <div class="form-group">
+              <label for="title" class="col-sm-4 control-label" id="changewidth" >标题</label>
+              <label for="title" class="col-sm-8 control-label" id="hide1">相关图片</label>
+              <div class="col-sm-4">
+                  <input type="text" class="form-control" id="title" name="title"
+                         placeholder="请输入标题">
+              </div>
+              <div class="col-sm-2">
+                  <form id='editfile' method='post' action='/uploadblog' enctype='multipart/form-data'>
+                      <input name="blog" id='upfile' type='file' style="display: none"/>
+                      <div>
+                          <input id="photoCover"  type="text" class="form-control" readonly="readonly" placeholder="图片地址区域" >
+                      </div>
+                  </form>
+              </div>
+              <div class="col-sm-1">
+                  <button id="hide2" class="btn btn-primary" onclick="$('input[id=upfile]').click();">上传图片</button>
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="post" class="col-sm-10 control-label" >正文</label>
+              <div class="col-sm-6">
+                  <textarea class="form-control " id="post" name="post" placeholder="请输入正文" rows="15" ></textarea>
+              </div>
+              <div class="col-sm-3" style="border: 1px;width: 450px;height: 313px">
+                  <img src="" id="picture" alt="picture " height="100%" width="100%">
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-sm-10"></label>
+              <div class="col-sm-4">
+                  <input id="hide3" type="button" class="btn btn-primary " value="发表微博" onclick="blog()">
+              </div>
+          </div>
+          <audio src="" controls="controls" id="audio" hidden="true"></audio>
+      </div>
+   </div>
+ </div>
+<script>
+    $(document).ready(function () {
+        $("#myCarousel").carousel({interval: 2000});
+        $("#upfile").change(function () {
+            $('#photoCover').val($(this).val());
+        });
+    });
+    function blog(){
+        var title=$("#title").val();
+        var post=$("#post").val();
+        $("#editfile").submit();
+        setTimeout(function () {
+            $.ajax({
+                type:'post',
+                url:'/blogsubmit',
+                cache:false,
+                data:{
+                    "title":title,
+                    "post":post
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        alert("发布成功");
+                    }
+                }
+            });
+        },500);
+    };
+    $("#upfile").change(function() {
+        var preview = document.querySelector('#picture');
+        var file = document.querySelector('#upfile').files[0];
+        var reader = new FileReader();
+        reader.addEventListener("load", function () {
+            preview.src = reader.result;
+        }, false);
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    })
+</script>
+</body>
+</html>

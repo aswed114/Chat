@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>WebSocket Echo Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="/stylesheets/bootstrap.min.css"rel="stylesheet" />
+    <script src='/javascripts/jquery-3.1.0.min.js'></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script>
+        var ws = new WebSocket("ws://localhost:8181");
+        ws.onopen = function() {
+            alert("Opened");
+            ws.send("I'm client");
+        };
+
+        ws.onmessage = function (evt) {
+            alert(evt.data);
+        };
+
+        ws.onclose = function() {
+            alert("Closed");
+        };
+
+        ws.onerror = function(err) {
+            alert("Error: " + err);
+        };
+    </script>
+</head>
+<body >
+<h1>WebSocket</h1>
+</body>
+</html>

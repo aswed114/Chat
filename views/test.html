@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/javascripts/angular.js"></script>
+    <script src='/javascripts/jquery-3.1.0.min.js'></script>
+    <script src='/javascripts/bootstrap.min.js'></script>
+    <link rel="stylesheet" href='stylesheets/bootstrap.min.css'>
+</head>
+<body>
+<div ng-controller="LoginController">
+    <table class="table table-striped">
+        <thead>
+        <tr >
+            <th >标题</th>
+            <th>歌手</th>
+            <th>时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody >
+            <tr ng-repeat="data in datas">
+                <td>{{data.musictitle}}</td>
+                <td>{{data.singer}}</td>
+                <td>{{data.musictotaltime}}</td>
+                <td ng-click="delete($index)">×</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+
+    function LoginController($scope){
+        $scope.datas=[];
+        $.ajax({
+            type:'post',
+            url:'playlist1',
+            dataType:'json',
+            success:function (msg) {
+                var result=eval(msg);
+                var datas=result.alllistmusic1;
+                $scope.$apply(function () {
+                    $scope.datas=datas;
+                })
+
+            }
+        })
+        $scope.delete=function ($index) {
+            alert($index);
+            $.ajax({
+                type:'post',
+                url:'/deletemusic',
+                data:{
+                    "musicid":$index
+                },
+                dataType:'json',
+                success:function (msg) {
+                    var result=eval(msg);
+                    if(result.result=="success"){
+                        alert("删除完毕");
+                        $scope.datas.splice($index,1);
+                        $scope.$apply(function () {
+                            $scope.datas=datas;
+                        })
+                    }
+                }
+            })
+        }
+
+        /*$scope.datas=[];
+        for(var i=0;i<5;i++){
+            var data={
+                id:i,
+                name:"xxx"+i,
+                yy:"yyy"+i,
+                ss:"sss"+i
+            };
+            $scope.datas.push(data);
+        }
+
+        $scope.deleteList=function (id) {
+            for(var ii=0;ii< $scope.datas.length;ii++){
+                if(id== $scope.datas[ii].id){
+                    $scope.datas.splice(ii,1)
+                }
+            }
+        }
+        */
+    }
+    var app=angular.module("app",[]);
+    app.controller("LoginController",LoginController);
+</script>
+</body>
+</html>
